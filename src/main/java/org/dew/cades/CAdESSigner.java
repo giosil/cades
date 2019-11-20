@@ -199,6 +199,25 @@ public class CAdESSigner {
 	}
 	
 	public
+	byte[] extract(byte[] pkcs7)
+		throws Exception
+	{
+		byte[] content = null;
+		
+		CMSSignedData signedData = new CMSSignedData(pkcs7);
+		
+		Object oSignedContent = signedData.getSignedContent().getContent();
+		if(oSignedContent instanceof byte[]) {
+			content = (byte[]) oSignedContent;
+		}
+		else if(oSignedContent != null) {
+			content = oSignedContent.toString().getBytes();
+		}
+		
+		return content;
+	}
+	
+	public
 	byte[] readFile(String filePath)
 		throws Exception
 	{
