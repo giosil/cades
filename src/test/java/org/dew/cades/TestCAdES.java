@@ -26,7 +26,11 @@ public class TestCAdES extends TestCase {
     
     CAdESSigner cades = new CAdESSigner(library, pin);
     
-    String filePath = System.getProperty("user.home") + File.separator + "test_cades.txt";
+    String folderPath = System.getProperty("user.home") + File.separator + "Desktop";
+    File folder = new File(folderPath);
+    if(!folder.exists()) folder.mkdirs();
+    
+    String filePath = folderPath + File.separator + "test_cades.txt";
     
     File file = new File(filePath);
     if(!file.exists()) {
