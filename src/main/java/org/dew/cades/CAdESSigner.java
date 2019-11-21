@@ -61,7 +61,6 @@ public class CAdESSigner {
     this(library, "smartcard", pin);
   }
   
-  @SuppressWarnings("restriction")
   public CAdESSigner(String library, String providerName, String pin)
     throws Exception
   {
