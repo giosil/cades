@@ -1,6 +1,6 @@
 # CAdES
 
-A simple library to sign files width CAdES-BES (CMS Advanced Electronic Signatures) signature.
+Utility class to sign files width CAdES-BES (CMS Advanced Electronic Signatures) digital signature.
 
 ## Example
 
