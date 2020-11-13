@@ -1,14 +1,16 @@
 package org.dew.cades;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.URL;
+
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.Security;
 
 import java.security.cert.Certificate;
@@ -17,6 +19,7 @@ import java.security.cert.CertStore;
 import java.security.cert.CollectionCertStoreParameters;
 
 import java.util.Collections;
+import java.util.Enumeration;
 
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.DERSet;
@@ -34,86 +37,112 @@ import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-public 
-class CAdESSigner 
-{
-  protected Certificate certificate;
-  protected Key         privateKey;
+/**
+ * CAdESSigner for smart-card (SC).
+ */
+public class CAdESSignerSC {
   
-  protected boolean     initCompleted;
+  protected String providerName;
+  protected String library;
   
-  public CAdESSigner(String keystoreFile, String password, String alias)
+  protected InputStream providerConfig;
+  protected char[]      passwordKeystore;
+  protected KeyStore    keystore;
+  
+  protected String      alias_Auth;
+  protected Certificate certificate_Auth;
+  protected Key         privateKey_Auth;
+  
+  protected String      alias_Sign;
+  protected Certificate certificate_Sign;
+  protected Key         privateKey_Sign;
+  
+  public CAdESSignerSC(String library, String pin)
     throws Exception
   {
-    if(keystoreFile == null || keystoreFile.length() == 0) {
-      return;
-    }
-    if(password == null || password.length() == 0) {
-      return;
-    }
-    if(alias == null || alias.length() == 0) {
-      return;
-    }
-    
-    int iFileSep = keystoreFile.indexOf('/');
-    if(iFileSep < 0) iFileSep = keystoreFile.indexOf('\\');
-    InputStream is = null;
-    if(iFileSep < 0) {
-      URL url = Thread.currentThread().getContextClassLoader().getResource(keystoreFile);
-      if(url == null) return;
-      is = url.openStream();
-    }
-    else {
-      is = new FileInputStream(keystoreFile);
-    }    
-    if(is == null) return;
-    
-    Security.addProvider(new BouncyCastleProvider());
-    
-    KeyStore keyStore = null;
-    if(keystoreFile.endsWith(".p12")) {
-      keyStore = KeyStore.getInstance("PKCS12", "BC");
-    }
-    else {
-      keyStore = KeyStore.getInstance("JKS");
-    }
-    keyStore.load(is, password.toCharArray());
-    
-    certificate = keyStore.getCertificate(alias);
-    privateKey  = keyStore.getKey(alias, password.toCharArray());
-    
-    initCompleted = certificate != null && privateKey != null;
+    this(library, "smartcard", pin);
   }
   
-  public CAdESSigner(Certificate certificate, PrivateKey privateKey)
+  public CAdESSignerSC(String library, String providerName, String pin)
     throws Exception
   {
-    this.certificate = certificate;
-    this.privateKey  = privateKey;
+    this.providerName   = providerName;
+    this.library        = library;
     
-    Security.addProvider(new BouncyCastleProvider());
+    if(library == null || library.length() == 0) {
+      return;
+    }
     
-    initCompleted = certificate != null && privateKey != null;
+    this.providerConfig = new ByteArrayInputStream(("name=" + providerName + "\nlibrary=" + library + "\n").getBytes());
+    
+    Provider providerPKCS11 = new sun.security.pkcs11.SunPKCS11(providerConfig);
+    Security.addProvider(providerPKCS11);
+    
+    this.passwordKeystore = pin.toCharArray();
+    
+    keystore = KeyStore.getInstance("PKCS11");
+    keystore.load(null, passwordKeystore);
+    
+    Enumeration<String> aliases = keystore.aliases();
+    if(aliases.hasMoreElements()) {
+      alias_Auth = aliases.nextElement();
+    }
+    if(aliases.hasMoreElements()) {
+      alias_Sign = aliases.nextElement();
+    }
+    if(alias_Sign == null) alias_Sign = alias_Auth;
+    
+    certificate_Auth = keystore.getCertificate(alias_Auth);
+    privateKey_Auth  = keystore.getKey(alias_Auth, passwordKeystore);
   }
   
   public
-  PrivateKey getPrivateKey()
+  PrivateKey getPrivateKeyAuth()
     throws Exception
   {
-    if(privateKey instanceof PrivateKey) {
-      return (PrivateKey) privateKey;
+    if(privateKey_Auth instanceof PrivateKey) {
+      return (PrivateKey) privateKey_Auth;
     }
     return null;
   }
   
   public
-  X509Certificate getX509Certificate()
+  X509Certificate getX509CertificateAuth()
     throws Exception
   {
-    if(certificate instanceof X509Certificate) {
-      return (X509Certificate) certificate;
+    if(certificate_Auth instanceof X509Certificate) {
+      return (X509Certificate) certificate_Auth;
+    }
+    return null;
+  }
+  
+  public
+  PrivateKey getPrivateKeySign()
+    throws Exception
+  {
+    if(privateKey_Sign instanceof PrivateKey) {
+      return (PrivateKey) privateKey_Sign;
+    }
+    if(alias_Sign == null || keystore == null) return null;
+    privateKey_Sign = keystore.getKey(alias_Sign, passwordKeystore);
+    if(privateKey_Sign instanceof PrivateKey) {
+      return (PrivateKey) privateKey_Sign;
+    }
+    return null;
+  }
+  
+  public
+  X509Certificate getX509CertificateSign()
+    throws Exception
+  {
+    if(certificate_Sign instanceof X509Certificate) {
+      return (X509Certificate) certificate_Sign;
+    }
+    if(alias_Sign == null || keystore == null) return null;
+    certificate_Sign = keystore.getCertificate(alias_Sign);
+    if(certificate_Sign instanceof X509Certificate) {
+      return (X509Certificate) certificate_Sign;
     }
     return null;
   }
@@ -138,10 +167,12 @@ class CAdESSigner
   byte[] pkcs7(byte[] content)
     throws Exception
   {
-    if(!initCompleted) return content;
+    if(library == null || library.length() == 0) {
+      return content;
+    }
     
     MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-    byte[] digestedCert = sha256.digest(getX509Certificate().getEncoded());
+    byte[] digestedCert = sha256.digest(getX509CertificateSign().getEncoded());
     
     // Attributo ESSCertID versione 2
     AlgorithmIdentifier aiSha256 = new AlgorithmIdentifier(NISTObjectIdentifiers.id_sha256);
@@ -156,14 +187,14 @@ class CAdESSigner
     AttributeTable attributeTable = new AttributeTable(asn1EncodableVector);
     CMSAttributeTableGenerator attrGen = new DefaultSignedAttributeTableGenerator(attributeTable);
     
-    CertStore certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(Collections.singletonList(getX509Certificate())));
+    CertStore certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(Collections.singletonList(getX509CertificateSign())));
     
     CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
-    generator.addSigner(getPrivateKey(), getX509Certificate(), CMSSignedDataGenerator.DIGEST_SHA256, attrGen, null);
+    generator.addSigner(getPrivateKeySign(), getX509CertificateSign(), CMSSignedDataGenerator.DIGEST_SHA256, attrGen, null);
     generator.addCertificatesAndCRLs(certStore);
     
     CMSProcessable cmsProcessable = new CMSProcessableByteArray(content);
-    CMSSignedData signedData = generator.generate(cmsProcessable, true, "BC");
+    CMSSignedData signedData = generator.generate(cmsProcessable, true, "SunPKCS11-" + providerName);
     byte[] abPKCS7Signature = signedData.getEncoded();
     
     return abPKCS7Signature;
