@@ -19,27 +19,27 @@ cades.sign("file.xml");
 
 Generate a Self Signed Certificate
 
-`"%JAVA_HOME%"\bin\keytool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass password -validity 365 -keysize 2048`
+`keytool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass password -validity 365 -keysize 2048`
 
 List certificates
 
-`"%JAVA_HOME%"\bin\keytool -list -keystore keystore.jks -storepass password`
+`keytool -list -keystore keystore.jks -storepass password`
 
 View certificates
 
-`"%JAVA_HOME%"\bin\keytool -list -rfc -alias selfsigned -keystore keystore.jks -storepass password`
+`keytool -list -rfc -alias selfsigned -keystore keystore.jks -storepass password`
 
 Export certificates
 
-`"%JAVA_HOME%"\bin\keytool -export -alias selfsigned -keystore keystore.jks -storepass password -file selfsigned.cer`
+`keytool -export -alias selfsigned -keystore keystore.jks -storepass password -file selfsigned.cer`
 
 Import certificates
 
-`"%JAVA_HOME%"\bin\keytool -import -file test.pem -alias test -keystore keystore.jks -storepass password`
+`keytool -import -file test.pem -alias test -keystore keystore.jks -storepass password`
 
 Delete certificates
 
-`"%JAVA_HOME%"\bin\keytool -delete -alias test -keystore keystore.jks -storepass password`
+`keytool -delete -alias test -keystore keystore.jks -storepass password`
 
 ## Build
 
