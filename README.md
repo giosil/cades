@@ -21,6 +21,10 @@ Generate a Self Signed Certificate
 
 `keytool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass password -validity 365 -keysize 2048`
 
+Convert keystore from JKS to PKCS12
+
+`keytool -importkeystore -srckeystore keystore.jks -destkeystore keystore.p12 -deststoretype PKCS12 -srcalias selfsigned -srcstorepass password -deststorepass password -destkeypass password`
+
 List certificates
 
 `keytool -list -keystore keystore.jks -storepass password`
