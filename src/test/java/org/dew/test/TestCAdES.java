@@ -1,6 +1,9 @@
-package org.dew.cades;
+package org.dew.test;
 
 import java.io.File;
+
+import org.dew.cades.CAdESSigner;
+import org.dew.cades.CAdESSignerSC;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
