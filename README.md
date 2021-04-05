@@ -45,9 +45,23 @@ Delete certificates
 
 `keytool -delete -alias test -keystore keystore.jks -storepass password`
 
-## Create p12 keystore with openssl
+## CManage certificates using openssl
+
+Create keystore.p12 in PKCS12 format
 
 `openssl pkcs12 -export -in cert.pem -inkey pkey.pem -name shared > keystore.p12`
+
+Export certificates from keystore.p12
+
+`openssl pkcs12 -in keystore.p12 -nokeys -out cert.pem`
+
+Export private key from keystore.p12
+
+`openssl pkcs12 -in keystore.p12 -nodes -nocerts -out pkey.pem`
+
+Convert private key in RSA private key
+
+`openssl rsa -in pkey.pem -out rkey.pem`
 
 Convert keystore from PKCS12 to JKS
 
