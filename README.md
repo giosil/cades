@@ -45,6 +45,14 @@ Delete certificates
 
 `keytool -delete -alias test -keystore keystore.jks -storepass password`
 
+Generate a CSR (Certificate Signing Request)
+
+`keytool –keystore keystore.jks –certreq –alias selfsigned –keyalg RSA –file req.csr`
+
+Import CA response
+
+`keytool -importcert -trustcacerts -file cacert.pem`
+
 ## Manage private key and certificates using openssl
 
 Generate a 2048-bit RSA private key and CSR (Certificate Signing Request)
