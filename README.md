@@ -45,6 +45,14 @@ Delete certificates
 
 `keytool -delete -alias test -keystore keystore.jks -storepass password`
 
+## Create p12 keystore with openssl
+
+`openssl pkcs12 -export -in cert.pem -inkey pkey.pem -name shared > keystore.p12`
+
+Convert keystore from PKCS12 to JKS
+
+`keytool -importkeystore -srckeystore keystore.p12 -srcstoretype pkcs12 -srcalias shared -destkeystore keystore.jks -deststoretype jks -deststorepass password -destalias shared`
+
 ## Build
 
 - `git clone https://github.com/giosil/cades.git`
