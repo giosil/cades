@@ -51,6 +51,10 @@ Generate a 2048-bit RSA private key and CSR (Certificate Signing Request)
 
 `openssl req -newkey rsa:2048 -keyout pkey.pem -out req.csr`
 
+Generate a 2048-bit RSA private key with Self-Signed Certificate
+
+`openssl req -newkey rsa:2048 -keyout pkey.pem -nodes -x509 -days 365 -out cert.crt`
+
 Create keystore.p12 in PKCS12 format
 
 `openssl pkcs12 -export -in cert.pem -inkey pkey.pem -name shared -out keystore.p12`
@@ -66,6 +70,10 @@ Export certificates from keystore.p12
 Export private key from keystore.p12
 
 `openssl pkcs12 -in keystore.p12 -nodes -nocerts -out pkey.pem`
+
+Convert PEM certificate to DER
+
+`openssl x509 -in cert.pem -outform der -out cert.crt`
 
 Convert private key in RSA private key
 
