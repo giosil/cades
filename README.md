@@ -59,6 +59,10 @@ Create keystore.p12 in PKCS12 format
 
 `openssl pkcs12 -export -in cert.pem -inkey pkey.pem -name shared -out keystore.p12`
 
+Create keystore.p12 in PKCS12 format width intermediate certificates (icert.pem)
+
+`openssl pkcs12 -export -in cert.pem -inkey pkey.pem -certfile icert.pem -name shared -out keystore.p12`
+
 View certificates in keystore.p12
 
 `openssl pkcs12 -in keystore.p12 -nokeys -info -passin pass:password`
@@ -74,6 +78,10 @@ Export private key from keystore.p12
 Convert PEM certificate to DER
 
 `openssl x509 -in cert.pem -outform der -out cert.crt`
+
+Convert DER certificate to PEM
+
+`openssl x509 -inform der -in cert.crt -out cert.pem`
 
 Convert private key in RSA private key
 
