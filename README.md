@@ -45,11 +45,15 @@ Delete certificates
 
 `keytool -delete -alias test -keystore keystore.jks -storepass password`
 
-## CManage certificates using openssl
+## Manage private key and certificates using openssl
 
 Create keystore.p12 in PKCS12 format
 
 `openssl pkcs12 -export -in cert.pem -inkey pkey.pem -name shared > keystore.p12`
+
+View certificates in keystore.p12
+
+`openssl pkcs12 -in keystore.p12 -nokeys -info -passin pass:password`
 
 Export certificates from keystore.p12
 
