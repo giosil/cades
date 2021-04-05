@@ -53,7 +53,7 @@ Generate a 2048-bit RSA private key and CSR (Certificate Signing Request)
 
 Create keystore.p12 in PKCS12 format
 
-`openssl pkcs12 -export -in cert.pem -inkey pkey.pem -name shared > keystore.p12`
+`openssl pkcs12 -export -in cert.pem -inkey pkey.pem -name shared -out keystore.p12`
 
 View certificates in keystore.p12
 
