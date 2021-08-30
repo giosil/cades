@@ -51,7 +51,7 @@ Generate a CSR (Certificate Signing Request)
 
 Import CA response
 
-`keytool -importcert -trustcacerts -file cacert.pem`
+`keytool -importcert -trustcacerts -file cacert.pem –keystore keystore.jks -alias selfsigned`
 
 ## Manage private key and certificates using openssl
 
