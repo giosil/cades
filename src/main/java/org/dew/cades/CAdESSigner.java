@@ -34,6 +34,7 @@ import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public 
@@ -45,6 +46,12 @@ class CAdESSigner
   protected boolean     initCompleted;
   
   public CAdESSigner(String keystoreFile, String password, String alias)
+      throws Exception
+  {
+    this(keystoreFile, password, alias, password);
+  }
+  
+  public CAdESSigner(String keystoreFile, String password, String alias, String passwordKey)
     throws Exception
   {
     if(keystoreFile == null || keystoreFile.length() == 0) {
@@ -55,6 +62,9 @@ class CAdESSigner
     }
     if(alias == null || alias.length() == 0) {
       return;
+    }
+    if(passwordKey == null || passwordKey.length() == 0) {
+      passwordKey = password;
     }
     
     int iFileSep = keystoreFile.indexOf('/');
