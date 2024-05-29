@@ -99,6 +99,10 @@ Convert keystore from PKCS12 to JKS
 
 `keytool -importkeystore -srckeystore keystore.p12 -srcstoretype pkcs12 -srcalias shared -destkeystore keystore.jks -deststoretype jks -deststorepass password -destalias shared`
 
+How get SSL certificate from server
+
+`openssl s_client -connect ${REMHOST}:${REMPORT}`
+
 ## Build
 
 - `git clone https://github.com/giosil/cades.git`
