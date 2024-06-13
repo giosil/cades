@@ -91,9 +91,13 @@ Convert DER certificate to PEM
 
 `openssl x509 -inform der -in cert.crt -out cert.pem`
 
-Convert private key in RSA private key
+Convert private key (also encrypted) in RSA private key
 
 `openssl rsa -in pkey.pem -out rkey.pem`
+
+Convert private key encrypted in plain private key
+
+`openssl pkey -in pkey.pem -out rkey.pem`
 
 Convert keystore from PKCS12 to JKS
 
