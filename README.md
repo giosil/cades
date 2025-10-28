@@ -107,6 +107,10 @@ How get SSL certificate from server
 
 `openssl s_client -connect ${REMHOST}:${REMPORT}`
 
+Verify CA of a certificate
+
+`openssl verify -CAfile ca.pem cert.pem`
+
 ## Build
 
 - `git clone https://github.com/giosil/cades.git`
